@@ -1,0 +1,15 @@
+Package: MergeFilterAndCollapse
+Type: Package
+Title: Merg, filter and collapse datasets
+Version: 0.1.0
+Author: ARS
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: The function MergeFilterAndCollapse performs the merge between a dataset with one row per unit of observation
+  and a dataset with multiple rows while filtering by a condition.
+  Furthermore it is possibile to collapse and compute summary statistics across strata of a categorical variable.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports: 
+    data.table
