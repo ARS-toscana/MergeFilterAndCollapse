@@ -1,12 +1,17 @@
 
 #' 'MergeFilterAndCollapse'
 #'
-#'version 5: October 2021
+#'version 6: May 2022
+#'Authors: Olga Paoletti, Davide Messina, Rosa Gini
+#'
+#'
 #'The function MergeFilterAndCollapse performs the merge between two datasets with one  multiple rows per unit of observation while filtering by a condition. Furthermore it is possibile to collapse and compute summary statistics across strata of a categorical variable.
 #'
 #' @param listdatasetL a list of one or more data.table() datasets, containing multiple records per -key-. In case the list contains more than one dataset, make sure the names of the -key- variables are equal across datasets.
 #' @param datasetS (optional) a data.table() dataset, containing one record per -key-
-#' @param key a vector containing the name(s) of the column identifying the units of observations in -listdatasetL- and in -datasetS-. If the units of observations are identified by variables with the same name, the name can be listed just once, otherwise list first the name in -listdatasetL- and second the name in -datasetS-.
+#' @param key a vector or a list containing the name(s) of the column identifying the units of observations in -listdatasetL- and in -datasetS-.
+#' 1) If the key is unique for both -listdatasetL- and in -datasetS- specify the key as a vector with the name(s) of the common key. If the units of observations are identified by variables with the same name, the name can be listed just once, otherwise list first the name in -listdatasetL- and second the name in -datasetS-. (for example c("person_id") or c("person_id", "id)).
+#' 2) If you want to use more than one variable as key for the merge specify it as list of lists (for example list(list("person_id","date"),list("id","covid_date")))
 #' @param condition (optional) a string containing a condition on the rows of the product between -datasetS- and-datasetL-. Only rows of the product that comply with the condition will be further processed by the function.
 #' @param typemerge (optional) a dichotomous parameter: 1 (default) indicates a one-to-many merge, 2 a many-to-many merge.
 #' @param saveintermediatedataset (optional) a logical parameter, by default set to FALSE. If it is TRUE the intermediate dataset obtained after -listdatasetL- is merged with -datasetS- and filtered with -condition- will be saved. If -additionalvar-is specified, the intermediate dataset will also contain the new variables. If -nameintermediatedataset- is not specified, the intermedate dataset is saved in the working directory with name 'intermediatedataset'.
@@ -41,21 +46,26 @@ MergeFilterAndCollapse <- function(listdatasetL,datasetS,key,condition,saveinter
     tmp <-datasetL[(eval(parse(text = condition))),]
   }else{
     commoncol <- intersect(names(datasetS), names(datasetL))
-    if (length(key) == 1) {
-      key.x = key[1]
-      key.y = key[1]
-      if (length(intersect(key.x, commoncol)) != 0) {
-        commoncol <- commoncol[!(commoncol  %in% intersect(key.x, commoncol))]
-        key.x = c(key.x,commoncol)
-        key.y = c(key.y,commoncol)
+    if (class(key)=="character"){
+      if (length(key) == 1 ) {
+        key.x = key[1]
+        key.y = key[1]
       }else{
-        key.x = c(key.x,commoncol)
-        key.y = c(key.y,commoncol)
+        key.x = c(key[1])
+        key.y = c(key[2])
       }
-    }else{
-      key.x = c(key[1],commoncol)
-      key.y = c(key[2],commoncol)
-    }
+    } else if (class(key)=="list"){
+      if (length(key) == 2 ) {
+        key.x = as.character(key[[1]])
+        key.y = as.character(key[[2]])
+      }else{
+        stop("The parameter key is specified wrongly. See documentation")
+      }
+  }
+
+    options(warn=1)
+    commoncol_notkey<-commoncol[!(commoncol %in% c(key.x,key.y))]
+    if (length(commoncol_notkey)!=0) warning(paste0("The variables: *", commoncol_notkey ,"* are in both datasetS and DatasetL but they are not key. The function will rename them adding .x and .y at the end of the names"))
 
     if (typemerge == 1 ) {
       if (!missing(condition)) {

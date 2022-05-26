@@ -12,7 +12,7 @@ dirinput <- paste0(thisdir,"/input/")
 diroutput <- paste0(thisdir,"/g_output/")
 
 #load function
-source(paste0(thisdir,"/../../R/MergeFilterAndCollapse_v5.R"))
+source(paste0(thisdir,"/../../R/MergeFilterAndCollapse.R"))
 
 # load data.table
 if (!require("data.table")) install.packages("data.table")
@@ -30,11 +30,12 @@ load(paste0(dirinput,"/OTHER_AED.RData"))
 #USE THE FUNCTION MergeFilterAndCollapse TO CHECK FOR THE PRESENCE OF DIABETES:	Diagnostic code recorded in 5 years of lookback, stratified per meaning of the diagnosis
 
 diabetes_exist = MergeFilterAndCollapse(list(DIABETES),
-                                        D4_study_population[,.(person_id,index_date)],
+                                        D4_study_population,
                                         key=c("person_id"),
                                         condition ="date>=index_date-365*5 & date<=index_date",
-                                        strata=c("meaning_of_event","person_id"),
-                                        summarystat = list(list(c("exist"),"event_code", "event_present")))
+
+                                        strata=c("person_id", "meaning_of_event"),
+                                        summarystat = list(list(c("count"),"event_code", "event_present")))
 
 
 
