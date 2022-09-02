@@ -1,0 +1,4 @@
+person_id,conceptset,at_least_one,number_of_diagnosis
+P00000001,diabetes,1,2
+P00000001,hypertension,1,1
+P00000002,hypertension,1,1

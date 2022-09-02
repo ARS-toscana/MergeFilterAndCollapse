@@ -1,0 +1,6 @@
+person_id,date,conceptset,n
+P00000001,20200203,diabetes,1
+P00000001,20200913,diabetes,1
+P00000001,20200221,hypertension,1
+P00000002,20191015,hypertension,1
+P00000002,20201015,hypertension,1
